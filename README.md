@@ -52,21 +52,6 @@ python3 main.py
 ```
 3. Find the extracted text in the `output` directory
 
-## How it Works
-The pipeline has three main steps:
-
-1. **Extract** (utils/extract.py)
-   - Reads PDF files from input directory
-   - Tries normal text extraction first
-   - Falls back to OCR if no text is found
-
-2. **Transform** (utils/transform.py)
-   - Cleans extracted text
-   - Removes extra spaces and newlines
-
-3. **Load** (utils/load.py)
-   - Saves processed text to output directory
-   - Creates one .txt file per PDF
 
 ## Features
 - Handles both regular PDFs and scanned PDFs
