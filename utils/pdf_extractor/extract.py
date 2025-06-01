@@ -59,7 +59,3 @@ def extract_pdfs_from_folder(input_folder="input"):
                 
     return extracted_texts
 
-if __name__ == "__main__":
-    # Test the extraction
-    results = extract_pdfs_from_folder()
-    print(f"\nProcessed {len(results)} PDF files") 

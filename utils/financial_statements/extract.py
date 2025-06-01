@@ -1,34 +1,23 @@
 # This file handles extracting the financial data from the text
 import re
+from datetime import datetime
 
-def find_years(text):
-    """Find the years from the text"""
-    # List to store years 
-    found_years = []
-    
-    # Split the text into lines
-    text_lines = text.split('\n')
-    
-    for line in text_lines:
-        # Gathering dates
-        if "31 December" in line:
-            # Find all 4-digit numbers that start with 20 (2021, 2022, etc)
-            year_matches = re.findall(r'20\d\d', line)
-            
-            # Convert each year from text to number
-            for year in year_matches:
-                year_number = int(year)
-                found_years.append(year_number)
-    
-    if len(found_years) > 0:
-        # Sort years from newest to oldest
-        found_years.sort()
-        found_years.reverse()
-        
-        # Return the current and the previous year
-        return [found_years[0], found_years[0] - 1]
-    
+def find_date(text):
+    """
+    Finds a date in DD/MM/YYYY format and converts it to 'DD Month YYYY'.
+    """
+    pattern = re.search(r"Bulan yang berakhir pada\s*(\d{1,2}/\d{1,2}/\d{4})", text)
+
+    if pattern:
+        raw_date = pattern.group(1)
+        try:
+            date_obj = datetime.strptime(raw_date, "%d/%m/%Y")
+            return date_obj.strftime("%d %B %Y")  # e.g., 30 September 2024
+        except ValueError:
+            return None
+
     return None
+
 
 def get_numbers_from_line(line):
     """Get numbers from a line of text"""
@@ -58,14 +47,13 @@ def get_numbers_from_line(line):
 
 def get_financial_data(text):
     """Get financial information from the text"""
-    # Get the years from the text
-    years = find_years(text)
-    if years is None:
-        print("Could not find any years in the text!")
+    # Get the date from the text
+    date = find_date(text)
+    if date is None:
+        print("Could not find any date in the text!")
         return []
     
-    this_year = {'Year': years[0]}
-    last_year = {'Year': years[1]}
+    financial_data = {'Date': date}
     
     # Split text into lines
     lines = text.split('\n')
@@ -77,58 +65,31 @@ def get_financial_data(text):
         if "revenue" in line_lower:
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
-                this_year['Revenue'] = numbers[0]
-                last_year['Revenue'] = numbers[1]
+                financial_data['Revenue'] = numbers[0]
         
         # Check for Total Profit (Loss)
         elif "total profit (loss)" in line_lower or "jumlah laba (rugi)" in line_lower:
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
-                this_year['Total Profit (Loss)'] = numbers[0]
-                last_year['Total Profit (Loss)'] = numbers[1]
+                financial_data['Total Profit (Loss)'] = numbers[0]
         
         # Check for Total Assets
         elif "total assets" in line_lower or "jumlah aset" in line_lower:
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
-                this_year['Total Assets'] = numbers[0]
-                last_year['Total Assets'] = numbers[1]
+                financial_data['Total Assets'] = numbers[0]
         
         # Check for Liabilities
         elif "total liabilities" in line_lower or "jumlah liabilitas" in line_lower:
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
-                this_year['Total Liabilities'] = numbers[0]
-                last_year['Total Liabilities'] = numbers[1]
+                financial_data['Total Liabilities'] = numbers[0]
         
         # Check for Equity
         elif "total equity" in line_lower or "jumlah ekuitas" in line_lower:
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
-                this_year['Total Equity'] = numbers[0]
-                last_year['Total Equity'] = numbers[1]
+                financial_data['Total Equity'] = numbers[0]
     
-    # Return both years' data
-    return [this_year, last_year]
-
-if __name__ == "__main__":
-    # Example text to test with
-    test_text = """
-    Statement of financial position 31 December 2022 31 December 2021
-    
-    Revenue: 150000000 140000000
-    Total Profit (Loss): 70000000 65000000
-    Total Assets: 500000000 480000000
-    Total Liabilities: 250000000 240000000
-    Total Equity: 250000000 240000000
-    """
-    
-    # Get the results
-    results = get_financial_data(test_text)
-    
-    for year_data in results:
-        print(f"\nData for year {year_data['Year']}:")
-
-        for item_name, value in year_data.items():
-            if item_name != 'Year':
-                print(f"{item_name}: {value}") 
+    # Return extracted financial data
+    return [financial_data]

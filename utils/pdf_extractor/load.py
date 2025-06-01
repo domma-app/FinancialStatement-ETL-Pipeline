@@ -34,12 +34,3 @@ def load_texts(transformed_texts, output_folder="output"):
             
     return saved_files
 
-if __name__ == "__main__":
-    # Test with sample text
-    sample_texts = {
-        "test1.pdf": "This is a test document",
-        "test2.pdf": "This is another test"
-    }
-    
-    saved = load_texts(sample_texts)
-    print(f"\nSaved {len(saved)} files") 

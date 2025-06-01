@@ -24,16 +24,3 @@ def transform_extracted_texts(extracted_texts):
             
     return transformed_texts
 
-if __name__ == "__main__":
-    # Test with sample text
-    sample_text = """
-    This is a    test
-    
-    With multiple    spaces
-    And empty lines
-    
-    """
-    
-    cleaned = clean_text(sample_text)
-    print("Cleaned text:")
-    print(cleaned) 
