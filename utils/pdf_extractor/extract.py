@@ -11,7 +11,7 @@ def extract_text_from_pdf(pdf_path):
     try:
         pdf_reader = PyPDF2.PdfReader(pdf_path)
         for page in pdf_reader.pages:
-            text += page.extract_text()
+            text += page.extract_text() + "\n"  # Add newline for clarity
     except Exception as e:
         print(f"Error reading PDF file: {pdf_path} - {str(e)}")
         return None
@@ -28,7 +28,7 @@ def extract_text_from_pdf(pdf_path):
             for i, image in enumerate(images):
                 page_text = pytesseract.image_to_string(image)
                 text += f"\n=== Page {i+1} ===\n"
-                text += page_text
+                text += page_text + "\n" # Add page separator for clarity
                 
         except Exception as e:
             print(f"Error doing OCR on PDF: {pdf_path} - {str(e)}")
