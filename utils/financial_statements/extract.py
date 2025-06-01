@@ -62,31 +62,38 @@ def get_financial_data(text):
         line_lower = line.lower()
         
         # Check for Revenue
-        if "revenue" in line_lower:
+        if "revenue" in line_lower and line_lower.strip().endswith("revenue"):
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
                 financial_data['Revenue'] = numbers[0]
         
         # Check for Total Profit (Loss)
-        elif "total profit (loss)" in line_lower or "jumlah laba (rugi)" in line_lower:
+        elif ("total profit (loss)" in line_lower or "jumlah laba (rugi)" in line_lower) and \
+             line_lower.strip().endswith("total profit (loss)") or \
+             line_lower.strip().endswith("jumlah laba (rugi)"):
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
                 financial_data['Total Profit (Loss)'] = numbers[0]
         
         # Check for Total Assets
-        elif "total assets" in line_lower or "jumlah aset" in line_lower:
+        elif ("total assets" in line_lower or "jumlah aset" in line_lower) and \
+             line_lower.strip().endswith("total assets") or \
+             line_lower.strip().endswith("jumlah aset"):
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
                 financial_data['Total Assets'] = numbers[0]
         
         # Check for Liabilities
-        elif "total liabilities" in line_lower or "jumlah liabilitas" in line_lower:
+        elif ("total liabilities" in line_lower or "jumlah liabilitas" in line_lower) and \
+             (line_lower.strip().endswith("total liabilities") or line_lower.strip().endswith("jumlah liabilitas")):
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
                 financial_data['Total Liabilities'] = numbers[0]
         
         # Check for Equity
-        elif "total equity" in line_lower or "jumlah ekuitas" in line_lower:
+        elif ("total equity" in line_lower or "jumlah ekuitas" in line_lower) and \
+             line_lower.strip().endswith("total equity") or \
+             line_lower.strip().endswith("jumlah ekuitas"):
             numbers = get_numbers_from_line(line)
             if len(numbers) >= 2:
                 financial_data['Total Equity'] = numbers[0]
