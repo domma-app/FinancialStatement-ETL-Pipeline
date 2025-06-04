@@ -5,6 +5,3 @@
 .wakatime-project
 
 # ignore non-python files/folders
-datasets/
-input/
-output/
