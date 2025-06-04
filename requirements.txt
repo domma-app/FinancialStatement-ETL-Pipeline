@@ -2,6 +2,10 @@ PyPDF2==3.0.1
 pytesseract==0.3.10
 pdf2image==1.16.3
 pandas==2.2.0
-numpy==1.24.3  
-tabula-py==2.9.0  
-regex==2023.12.25  
+numpy==1.26.0
+tabula-py==2.9.0
+regex==2023.12.25
+tensorflow==2.19.0
+fastapi==0.115.12
+uvicorn==0.34.3
+python-multipart==0.0.20
