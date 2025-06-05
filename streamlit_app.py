@@ -20,7 +20,7 @@ st.markdown(
     """
     ## 💼 Capstone Project - Dicoding x DBS Foundation 2025
 
-    Halo, perkenalkan saya **Falah Mandira Irawan**, seorang Machine Learning Engineer Cohort dalam program **Coding Camp 2025**. Fitur ini adalah salah satu yang saya kembangkan dalam **Capstone Project Coding Camp 2025** yang diselenggarakan oleh [Dicoding](https://www.dicoding.com/) dan didukung oleh **DBS Foundation**.
+    Halo, perkenalkan saya **Falah Mandira Irawan**, seorang Machine Learning Engineer Cohort dalam program **Coding Camp 2025**. Fitur ini adalah fitur yang saya kembangkan dalam **Capstone Project Coding Camp 2025** yang diselenggarakan oleh [Dicoding](https://www.dicoding.com/) dan didukung oleh **DBS Foundation**.
 
     🎯 **Tujuan dari aplikasi ini** adalah untuk membantu **investor pemula** dalam melakukan analisis sederhana terhadap laporan keuangan perusahaan, dan memberikan **rekomendasi kelayakan saham** secara otomatis berdasarkan data tersebut.
 
