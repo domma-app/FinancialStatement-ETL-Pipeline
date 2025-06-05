@@ -20,7 +20,7 @@ st.markdown(
     """
     ## 💼 Capstone Project - Dicoding x DBS Foundation 2025
 
-    Ini adalah salah satu fitur utama yang saya kembangkan dalam **Capstone Project Coding Camp 2025** yang diselenggarakan oleh [Dicoding](https://www.dicoding.com/) dan didukung oleh **DBS Foundation**.
+    Halo, perkenalkan saya **Falah Mandira Irawan**, seorang Machine Learning Engineer Cohort dalam program **Coding Camp 2025**. Fitur ini adalah salah satu yang saya kembangkan dalam **Capstone Project Coding Camp 2025** yang diselenggarakan oleh [Dicoding](https://www.dicoding.com/) dan didukung oleh **DBS Foundation**.
 
     🎯 **Tujuan dari aplikasi ini** adalah untuk membantu **investor pemula** dalam melakukan analisis sederhana terhadap laporan keuangan perusahaan, dan memberikan **rekomendasi kelayakan saham** secara otomatis berdasarkan data tersebut.
 
@@ -42,10 +42,9 @@ st.title("📥 Analisis Laporan Keuangan (PDF) + Rekomendasi Saham")
 st.markdown(
     """
     ### Unggah Laporan Keuangan
-    Unggah satu atau lebih file PDF laporan keuangan tahunan atau per triwulan dari website IDX.
+    Unggah satu atau lebih file PDF laporan keuangan tahunan atau per triwulan dari satu perusahaan.
     <br>
-    Format file dapat dilihat sebagai referensi di 
-    [www.idx.co.id](https://www.idx.co.id/id/perusahaan-tercatat/laporan-keuangan-dan-tahunan/) 🧾
+    Format file dapat dilihat sebagai referensi di [website resmi IDX](https://www.idx.co.id/id/perusahaan-tercatat/laporan-keuangan-dan-tahunan/) 🧾
     """,
     unsafe_allow_html=True
 )

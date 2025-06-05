@@ -121,6 +121,7 @@ class ClassificationPreprocessor:
         except Exception as err:
             raise err
 
+import tensorflow as tf
 
 class StockRecommendationHandler:
     @staticmethod
@@ -136,13 +137,28 @@ class StockRecommendationHandler:
             raise err
 
     @staticmethod
-    def average_labels(y_prob, threshold=0.5):
+    def average_labels(y_prob, y_true, threshold=0.5):
         try:
             y_pred = tf.cast(tf.reshape(y_prob >= threshold, [-1]), tf.float32)
+            
+            accuracy = tf.keras.metrics.Accuracy()
+            accuracy.update_state(y_true, y_pred)
+            accuracy_result = accuracy.result().numpy()
+            
+            precision = tf.keras.metrics.Precision()
+            precision.update_state(y_true, y_pred)
+            precision_result = precision.result().numpy()
+            
+            recall = tf.keras.metrics.Recall()
+            recall.update_state(y_true, y_pred)
+            recall_result = recall.result().numpy()
+
             unique_labels, _, counts = tf.unique_with_counts(y_pred)
             most_label_index = tf.argmax(counts)
             most_label = unique_labels[most_label_index].numpy()
-            return "Recommended" if most_label == 0 else "Not Recommended"
+            recommendation = "Recommended" if most_label == 0 else "Not Recommended"
+            
+            return recommendation, accuracy_result, precision_result, recall_result
         except Exception as err:
             raise err
 
@@ -194,11 +210,14 @@ def stock_purchase_recommendation(
             financial_metrics_df[all_feature_names].values 
         )
         
-        recommendation = StockRecommendationHandler.average_labels(y_prob)
+        recommendation, accuracy, precision, recall = StockRecommendationHandler.average_labels(y_prob, y_test)
 
         result = {
             "avg_metrics": avg_metrics,
-            "recommendation": recommendation
+            "recommendation": recommendation,
+            "accuracy": accuracy,
+            # "precision": precision,
+            # "recall": recall
         }
 
         return result
