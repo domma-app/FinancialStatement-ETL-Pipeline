@@ -1,3 +1,9 @@
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import JSONResponse
+import os
+import shutil
+import numpy as np
+
 from utils.pdf_extractor.extract import extract_pdfs_from_folder
 from utils.pdf_extractor.transform import transform_extracted_texts
 from utils.pdf_extractor.load import load_texts
@@ -8,15 +14,20 @@ from utils.financial_statements.load import save_data_to_csv
 
 from utils.predict.predictor import stock_purchase_recommendation
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
-
-import io
-import os
-import shutil
-import uvicorn
-
 app = FastAPI()
+
+# ✅ Tambahkan fungsi konversi numpy types ke Python native
+def convert_np_types(obj):
+    if isinstance(obj, dict):
+        return {k: convert_np_types(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_np_types(i) for i in obj]
+    elif isinstance(obj, (np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, (np.int32, np.int64)):
+        return int(obj)
+    else:
+        return obj
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
@@ -49,7 +60,6 @@ async def predict(file: UploadFile = File(...)):
         # Extract financial data from the cleaned text
         print("\n=== Extracting financial metrics ===")
         all_financial_data = []
-
         for text in clean_texts.values():
             financial_data = get_financial_data(text)
             if financial_data:
@@ -70,12 +80,15 @@ async def predict(file: UploadFile = File(...)):
         
         recommendation = stock_purchase_recommendation(saved_data)
         
-        # Clean up the folders to save memory
+        # Convert the output to be JSON serializable
+        converted = convert_np_types(recommendation)
+        
+        # Clean up folders to save memory
         print("\n=== Cleaning up folders ===")
-        # clean_up_folders(['input', 'output', 'datasets'])
-        clean_up_folders(['output'])
+        clean_up_folders(['input', 'output', 'datasets'])
+        print("Folders cleaned up successfully.")
 
-        return JSONResponse(content=recommendation, status_code=200)
+        return JSONResponse(content=converted, status_code=200)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -84,16 +97,13 @@ async def predict(file: UploadFile = File(...)):
 def clean_up_folders(folders):
     try:
         for folder in folders:
-            # Check if the folder exists
             if os.path.exists(folder):
-                # Iterate over the files in the folder
                 for filename in os.listdir(folder):
                     file_path = os.path.join(folder, filename)
-                    # Check if it is a file or directory
                     if os.path.isfile(file_path):
-                        os.remove(file_path)  # Delete the file
+                        os.remove(file_path)
                     elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)  # Delete the directory
+                        shutil.rmtree(file_path)
                 print(f"Cleaned up: {folder}")
             else:
                 print(f"Folder not found: {folder}")
@@ -157,6 +167,7 @@ def main():
     print("\n=== Cleaning up folders ===")
     # clean_up_folders(['input', 'output', 'datasets'])
     clean_up_folders(['output'])
+    print("Folders cleaned up successfully.")
 
 # Only run the program if we run this file directly
 if __name__ == "__main__":
