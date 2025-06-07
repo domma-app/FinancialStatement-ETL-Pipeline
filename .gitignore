@@ -5,4 +5,3 @@
 .wakatime-project
 
 # ignore non-python files/folders
-streamlit_app.py

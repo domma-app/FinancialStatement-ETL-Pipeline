@@ -29,7 +29,7 @@ st.markdown(
     - 📄 Mengekstraksi dan membersihkan teks dari laporan keuangan
     - 📊 Menyusun metrik keuangan utama
     - 🧠 Melakukan analisis berbasis machine learning
-    - ✅ Memberikan rekomendasi sederhana: **Recommended** atau **Not Recommended**
+    - ✅ Memberikan rekomendasi sederhana berupa persentase kelayakan pembelian saham
 
     ---
     """,
@@ -109,7 +109,7 @@ if uploaded_files:
                 st.warning("⚠️ Tidak ada data keuangan yang tersedia untuk rekomendasi.")
                 return
 
-            st.write("💡 Menghasilkan rekomendasi pembelian saham...")
+            st.write("💡 Menghasilkan persentase rekomendasi pembelian saham...")
             recommendation = stock_purchase_recommendation(saved_data)
 
             st.success("✅ Proses selesai!")
