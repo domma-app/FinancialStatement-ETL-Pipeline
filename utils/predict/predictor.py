@@ -13,213 +13,108 @@ Username        : falah_mandira_irawan
 </pre>
 
 """
+from keras.layers import TFSMLayer
+from utils.monitor.monitor_system import monitor_resources 
 
 import tensorflow as tf
 import pandas as pd
 import os
-from keras.layers import TFSMLayer
-
 
 class FinancialDataHandler:
     def __init__(self, dataset_dir='datasets'):
-        try:
-            self.dataset_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', dataset_dir))
-        except Exception as err:
-            raise err
+        self.dataset_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', dataset_dir))
 
     def load_csv(self, filename='financial_metrics.csv'):
-        try:
-            csv_path = os.path.join(self.dataset_dir, filename)
-            return pd.read_csv(csv_path)
-        except Exception as err:
-            raise err
+        monitor_resources("Loading CSV")
+        csv_path = os.path.join(self.dataset_dir, filename)
+        df = pd.read_csv(csv_path)
+        monitor_resources("Finished Loading CSV")
+        return df
+    
 
-    def inverse_normalize(self, normalizer, X_tensor):
-        try:
-            mean = normalizer.mean.numpy()
-            var = normalizer.variance.numpy()
-            std = tf.sqrt(var)
-            return X_tensor * std + mean
-        except Exception as err:
-            raise err
-
-
-class FinancialFeaturePreprocessor:
+class FinancialDataPreprocessor:
     def __init__(self):
-        try:
-            self.normalizer = tf.keras.layers.Normalization(axis=-1, dtype=tf.float32)
-        except Exception as err:
-            raise err
+        self.normalizer = tf.keras.layers.Normalization(axis=-1, dtype=tf.float32)
 
     def compute_financial_metrics(self, financial_df: pd.DataFrame) -> pd.DataFrame:
-        try:
-            metrics = pd.DataFrame()
-            metrics['ROE (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Equity']) * 100
-            metrics['ROA (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Assets']) * 100
-            metrics['D/E Ratio'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
-            metrics['Equity Ratio (%)'] = (financial_df['Total Equity'] / financial_df['Total Assets']) * 100
-            metrics['A/E Ratio'] = financial_df['Total Assets'] / financial_df['Total Equity']
-            metrics['Leverage'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
-            return metrics
-        except Exception as err:
-            raise err
+        monitor_resources("Computing Financial Metrics")
+        metrics = pd.DataFrame()
+        metrics['ROE (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Equity']) * 100
+        metrics['ROA (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Assets']) * 100
+        metrics['D/E Ratio'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
+        metrics['Equity Ratio (%)'] = (financial_df['Total Equity'] / financial_df['Total Assets']) * 100
+        metrics['A/E Ratio'] = financial_df['Total Assets'] / financial_df['Total Equity']
+        metrics['Leverage'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
+        monitor_resources("Finished Computing Financial Metrics")
+        return metrics
 
     def normalize_features(self, data: pd.DataFrame) -> tf.Tensor:
-        try:
-            self.normalizer.adapt(data.values)
-            return self.normalizer(data.values)
-        except Exception as err:
-            raise err
+        monitor_resources("Normalizing Features")
+        self.normalizer.adapt(data.values)
+        normalized_data = self.normalizer(data.values)
+        monitor_resources("Finished Normalizing Features")
+        return normalized_data
 
 
 class ModelHandler:
     @staticmethod
-    def get_clustering_model(model_path):
-        try:
-            return TFSMLayer(model_path, call_endpoint='serving_default')
-        except Exception as err:
-            raise err
-
-    @staticmethod
-    def get_classification_model(model_path):
-        try:
-            return TFSMLayer(model_path, call_endpoint='serving_default')
-        except Exception as err:
-            raise err
-
-
-class ClassificationPreprocessor:
-    def __init__(self, X_tensor, cluster_labels):
-        try:
-            self.X_tensor = X_tensor
-            self.cluster_labels = cluster_labels
-        except Exception as err:
-            raise err
-
-    def encode(self):
-        try:
-            data = tf.concat([self.X_tensor, tf.reshape(self.cluster_labels, (-1, 1))], axis=1)
-            data = tf.Variable(data)
-            data[:, -1].assign(tf.where(data[:, -1] == 1.0, 0.0, 1.0))
-            return tf.convert_to_tensor(data)
-        except Exception as err:
-            raise err
-
-    def split(self, test_size=0.2):
-        try:
-            encoded = self.encode()
-            shuffled = tf.random.shuffle(encoded)
-
-            X = shuffled[:, :-1]
-            y = shuffled[:, -1:]
-
-            split_index = int((1 - test_size) * len(shuffled))
-            X_train, X_test = X[:split_index], X[split_index:]
-            y_train, y_test = y[:split_index], y[split_index:]
-
-            return X_train, X_test, y_train, y_test
-        except Exception as err:
-            raise err
-
-import tensorflow as tf
+    def get_model(model_path):
+        monitor_resources("Loading Model")
+        model = TFSMLayer(model_path, call_endpoint='serving_default')
+        monitor_resources("Finished Loading Model")
+        return model
+    
 
 class StockRecommendationHandler:
     @staticmethod
-    def average_features(tensor, feature_names=None):
-        try:
-            if feature_names is None:
-                feature_names = ['ROE (%)', 'ROA (%)', 'D/E Ratio', 'Equity Ratio (%)', 'A/E Ratio', 'Leverage']
-                
-            avg_values = tf.reduce_mean(tensor, axis=0)
-            avg_dict = {name: round(float(val), 2) for name, val in zip(feature_names, avg_values.numpy())}
-            return avg_dict
-        except Exception as err:
-            raise err
+    def avg_features(tensor, feature_names=None):
+        monitor_resources("Averaging Features")
+        if feature_names is None:
+            feature_names = ['ROE (%)', 'ROA (%)', 'D/E Ratio', 'Equity Ratio (%)', 'A/E Ratio', 'Leverage']
+        avg_values = tf.reduce_mean(tensor, axis=0)
+        monitor_resources("Finished Averaging Features")
+        return {name: round(float(val), 2) for name, val in zip(feature_names, avg_values.numpy())}
 
     @staticmethod
-    def average_labels(y_prob, y_true, threshold=0.5):
-        try:
-            y_pred = tf.cast(tf.reshape(y_prob >= threshold, [-1]), tf.float32)
-            
-            accuracy = tf.keras.metrics.Accuracy()
-            accuracy.update_state(y_true, y_pred)
-            accuracy_result = accuracy.result().numpy()
-            
-            precision = tf.keras.metrics.Precision()
-            precision.update_state(y_true, y_pred)
-            precision_result = precision.result().numpy()
-            
-            recall = tf.keras.metrics.Recall()
-            recall.update_state(y_true, y_pred)
-            recall_result = recall.result().numpy()
+    def avg_probability(y_prob):
+        monitor_resources("Averaging Probability")
+        avg_prob = round(float(tf.reduce_mean(y_prob).numpy()) * 100, 2)
+        monitor_resources("Finished Recommending")
+        return avg_prob
 
-            unique_labels, _, counts = tf.unique_with_counts(y_pred)
-            most_label_index = tf.argmax(counts)
-            most_label = unique_labels[most_label_index].numpy()
-            recommendation = "Recommended" if most_label == 0 else "Not Recommended"
-            
-            return recommendation, accuracy_result, precision_result, recall_result
-        except Exception as err:
-            raise err
 
 def stock_purchase_recommendation(
     financial_data=None,
     financial_csv=None,
-    clustering_model_path=None,
-    classification_model_path=None,
-    test_size=0.2
+    model_path=None
 ):
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    if clustering_model_path is None:
-        clustering_model_path = os.path.normpath(os.path.join(base_dir, 'models', 'clustering'))
-    if classification_model_path is None:
-        classification_model_path = os.path.normpath(os.path.join(base_dir, 'models', 'classification'))
+    data_handler = FinancialDataHandler()
+    if financial_data is not None:
+        df = financial_data
+    else:
+        if financial_csv is None:
+            financial_csv = os.path.normpath(os.path.join(base_dir, '..', '..', 'datasets', 'financial_metrics.csv'))
+        df = data_handler.load_csv(financial_csv)
 
-    try:
-        data_handler = FinancialDataHandler()
+    preprocessor = FinancialDataPreprocessor()
+    financial_metrics_df = preprocessor.compute_financial_metrics(df)
+    X_tensor = preprocessor.normalize_features(financial_metrics_df)
 
-        if financial_data is not None:
-            df = financial_data
-        else:
-            if financial_csv is None:
-                financial_csv = os.path.normpath(os.path.join(base_dir, '..', '..', 'datasets', 'financial_metrics.csv'))
-            df = data_handler.load_csv(financial_csv)
+    model_handler = ModelHandler()
+    if model_path is None:
+        model_path = os.path.normpath(os.path.join(base_dir, 'models'))
+    
+    model = model_handler.get_model(model_path)
+    y_prob = list(model(X_tensor).values())[0]
 
-        preprocessor = FinancialFeaturePreprocessor()
-        financial_metrics_df = preprocessor.compute_financial_metrics(df)
+    avg_metrics = StockRecommendationHandler.avg_features(
+        financial_metrics_df.values, financial_metrics_df.columns.tolist()
+    )
+    avg_prob = StockRecommendationHandler.avg_probability(y_prob)
 
-        X_tensor = preprocessor.normalize_features(financial_metrics_df)
-
-        model_handler = ModelHandler()
-        clustering_model = model_handler.get_clustering_model(clustering_model_path)
-        cluster_output = clustering_model(X_tensor)
-        cluster_labels = list(cluster_output.values())[0]
-
-        financial_metrics_df['Cluster'] = cluster_labels
-
-        classifier_preproc = ClassificationPreprocessor(X_tensor, cluster_labels)
-        X_train, X_test, y_train, y_test = classifier_preproc.split(test_size=test_size)
-
-        classification_model = model_handler.get_classification_model(classification_model_path)
-        y_prob = list(classification_model(X_test).values())[0]
-
-        all_feature_names = financial_metrics_df.columns.tolist()
-
-        avg_metrics = StockRecommendationHandler.average_features(
-            financial_metrics_df[all_feature_names].values 
-        )
-        
-        recommendation, accuracy, precision, recall = StockRecommendationHandler.average_labels(y_prob, y_test)
-
-        result = {
-            "avg_metrics": avg_metrics,
-            "recommendation": recommendation,
-            "accuracy": accuracy,
-            # "precision": precision,
-            # "recall": recall
-        }
-
-        return result
-    except Exception as err:
-        raise err
+    return {
+        "avg_metrics": avg_metrics,
+        "rekomendasi (%)": avg_prob
+    }

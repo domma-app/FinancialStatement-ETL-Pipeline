@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import os
 import shutil
@@ -16,7 +16,7 @@ from utils.predict.predictor import stock_purchase_recommendation
 
 app = FastAPI()
 
-# ✅ Tambahkan fungsi konversi numpy types ke Python native
+# Convert numpy types to Python native
 def convert_np_types(obj):
     if isinstance(obj, dict):
         return {k: convert_np_types(v) for k, v in obj.items()}
