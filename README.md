@@ -1,5 +1,5 @@
-# Financial Statement ETL Pipeline
-As the first step in developing the stock recommendation feature for the Domma (Dompet Mahasiswa) app, I start by creating a simple Python ETL pipeline. This pipeline converts PDFs to text and then transforms the plain text into a CSV format for advanced analysis, with the resulting CSV used to build clustering and classification models. The goal of this project is to provide stock recommendations based on financial data, using a classification model to determine whether a stock is worth buying or not.
+# Stock Purchase Recommendation App
+This app analyzes financial statements extracted from PDF files and provides a stock purchase recommendation in the form of a percentage score. Using an ETL pipeline, the app processes raw financial data from financial statement (PDF), transforms it into a structured format, and applies machine learning models to predict the likelihood of a stock being a good investment. The result is a percentage score indicating the confidence level of the recommendation, helping investors make data-driven decisions.
 
 ## Prerequisites
 - Python 3.8+
