@@ -25,10 +25,10 @@ class FinancialDataHandler:
         self.dataset_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', dataset_dir))
 
     def load_csv(self, filename='financial_metrics.csv'):
-        # monitor_resources("Loading CSV")
+        monitor_resources("Loading CSV")
         csv_path = os.path.join(self.dataset_dir, filename)
         df = pd.read_csv(csv_path)
-        # monitor_resources("Finished Loading CSV")
+        monitor_resources("Finished Loading CSV")
         return df
     
 
@@ -37,7 +37,7 @@ class FinancialDataPreprocessor:
         self.normalizer = tf.keras.layers.Normalization(axis=-1, dtype=tf.float32)
 
     def compute_financial_metrics(self, financial_df: pd.DataFrame) -> pd.DataFrame:
-        # monitor_resources("Computing Financial Metrics")
+        monitor_resources("Computing Financial Metrics")
         metrics = pd.DataFrame()
         metrics['ROE (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Equity']) * 100
         metrics['ROA (%)'] = (financial_df['Total Profit (Loss)'] / financial_df['Total Assets']) * 100
@@ -45,41 +45,41 @@ class FinancialDataPreprocessor:
         metrics['Equity Ratio (%)'] = (financial_df['Total Equity'] / financial_df['Total Assets']) * 100
         metrics['A/E Ratio'] = financial_df['Total Assets'] / financial_df['Total Equity']
         metrics['Leverage'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
-        # monitor_resources("Finished Computing Financial Metrics")
+        monitor_resources("Finished Computing Financial Metrics")
         return metrics
 
     def normalize_features(self, data: pd.DataFrame) -> tf.Tensor:
-        # monitor_resources("Normalizing Features")
+        monitor_resources("Normalizing Features")
         self.normalizer.adapt(data.values)
         normalized_data = self.normalizer(data.values)
-        # monitor_resources("Finished Normalizing Features")
+        monitor_resources("Finished Normalizing Features")
         return normalized_data
 
 
 class ModelHandler:
     @staticmethod
     def get_model(model_path):
-        # monitor_resources("Loading Model")
+        monitor_resources("Loading Model")
         model = TFSMLayer(model_path, call_endpoint='serving_default')
-        # monitor_resources("Finished Loading Model")
+        monitor_resources("Finished Loading Model")
         return model
     
 
 class StockRecommendationHandler:
     @staticmethod
     def avg_features(tensor, feature_names=None):
-        # monitor_resources("Averaging Features")
+        monitor_resources("Averaging Features")
         if feature_names is None:
             feature_names = ['ROE (%)', 'ROA (%)', 'D/E Ratio', 'Equity Ratio (%)', 'A/E Ratio', 'Leverage']
         avg_values = tf.reduce_mean(tensor, axis=0)
-        # monitor_resources("Finished Averaging Features")
+        monitor_resources("Finished Averaging Features")
         return {name: round(float(val), 2) for name, val in zip(feature_names, avg_values.numpy())}
 
     @staticmethod
     def avg_probability(y_prob):
-        # monitor_resources("Averaging Probability")
+        monitor_resources("Averaging Probability")
         avg_prob = round(float(tf.reduce_mean(y_prob).numpy()) * 100, 2)
-        # monitor_resources("Finished Recommending")
+        monitor_resources("Finished Recommending")
         return avg_prob
 
 
