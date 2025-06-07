@@ -45,11 +45,11 @@ class FinancialDataPreprocessor:
         metrics['Equity Ratio (%)'] = (financial_df['Total Equity'] / financial_df['Total Assets']) * 100
         metrics['A/E Ratio'] = financial_df['Total Assets'] / financial_df['Total Equity']
         metrics['Leverage'] = financial_df['Total Liabilities'] / financial_df['Total Equity']
-        monitor_resources("Finished Computing Financial Metrics")
+        # monitor_resources("Finished Computing Financial Metrics")
         return metrics
 
     def normalize_features(self, data: pd.DataFrame) -> tf.Tensor:
-        monitor_resources("Normalizing Features")
+        # monitor_resources("Normalizing Features")
         self.normalizer.adapt(data.values)
         normalized_data = self.normalizer(data.values)
         # monitor_resources("Finished Normalizing Features")
