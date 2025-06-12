@@ -18,7 +18,6 @@ from utils.monitor.monitor_system import monitor_resources
 
 import tensorflow as tf
 import pandas as pd
-import numpy as np
 import os
 
 class FinancialDataHandler:
@@ -76,17 +75,14 @@ class StockRecommendationHandler:
         avg_values = tf.reduce_mean(tensor, axis=0)
         # monitor_resources("Finished Averaging Features")
         return {name: round(float(val), 2) for name, val in zip(feature_names, avg_values.numpy())}
-
     
     @staticmethod
     def avg_probability(y_prob):
         # monitor_resources("Averaging Probability")
-        y_prob = np.array(y_prob)
         target_prob = 1.0 - y_prob
-        avg_prob = float(np.mean(target_prob))
+        avg_prob = round(float(tf.reduce_mean(target_prob).numpy()) * 100, 2)
         # monitor_resources("Finished Recommending")
-        return round(avg_prob * 100, 2)
-    
+        return avg_prob
 
 def stock_purchase_recommendation(
     financial_data=None,
