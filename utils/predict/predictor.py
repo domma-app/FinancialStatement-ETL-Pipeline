@@ -18,6 +18,7 @@ from utils.monitor.monitor_system import monitor_resources
 
 import tensorflow as tf
 import pandas as pd
+import numpy as np
 import os
 
 class FinancialDataHandler:
@@ -62,6 +63,7 @@ class ModelHandler:
         # monitor_resources("Loading Model")
         model = TFSMLayer(model_path, call_endpoint='serving_default')
         # monitor_resources("Finished Loading Model")
+        # print(model.summary())
         return model
     
 
@@ -75,13 +77,16 @@ class StockRecommendationHandler:
         # monitor_resources("Finished Averaging Features")
         return {name: round(float(val), 2) for name, val in zip(feature_names, avg_values.numpy())}
 
+    
     @staticmethod
     def avg_probability(y_prob):
         # monitor_resources("Averaging Probability")
-        avg_prob = round(float(tf.reduce_mean(y_prob).numpy()) * 100, 2)
+        y_prob = np.array(y_prob)
+        target_prob = 1.0 - y_prob
+        avg_prob = float(np.mean(target_prob))
         # monitor_resources("Finished Recommending")
-        return avg_prob
-
+        return round(avg_prob * 100, 2)
+    
 
 def stock_purchase_recommendation(
     financial_data=None,
